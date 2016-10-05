@@ -74,7 +74,16 @@ function render(elapsedTime, ctx) {
  */
 module.exports = exports = Cell;
 
-function Cell() {
+function Cell(x, y) {
+  this.render = render;
+
+  this.x = x;
+  this.y = y;
+  console.log(x,y); 
+  // this.pipe = pipe;
+}
+
+var render = function() {
 
 }
 
@@ -168,7 +177,7 @@ Game.prototype.loop = function(newTime) {
 function _initGrid(gridWidth, gridHeight) {
   var grid = [];
   for (var i = 0; i < gridWidth * gridHeight; i++) {
-    grid.push(new Cell());
+    grid.push(new Cell(i % gridWidth, Math.floor(i / gridHeight)));
   }
   return grid;
 }

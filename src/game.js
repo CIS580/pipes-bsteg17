@@ -66,7 +66,7 @@ Game.prototype.loop = function(newTime) {
 function _initGrid(gridWidth, gridHeight) {
   var grid = [];
   for (var i = 0; i < gridWidth * gridHeight; i++) {
-    grid.push(new Cell());
+    grid.push(new Cell(i % gridWidth, Math.floor(i / gridHeight)));
   }
   return grid;
 }
