@@ -67,7 +67,18 @@ function render(elapsedTime, ctx) {
 
 }
 
-},{"./game":3}],2:[function(require,module,exports){
+},{"./game":4}],2:[function(require,module,exports){
+
+/**
+ * @module exports the Cell class
+ */
+module.exports = exports = Cell;
+
+function Cell() {
+
+}
+
+},{}],3:[function(require,module,exports){
 module.exports = exports = EntityManager;
 
 function EntityManager(callback) {
@@ -88,8 +99,10 @@ EntityManager.prototype.addImage = function(url) {
   this.images[url].src = url;
 }
 
-},{}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 "use strict";
+
+var Cell = require('./cell.js');
 
 /**
  * @module exports the Game class
@@ -118,6 +131,10 @@ function Game(screen, updateFunction, renderFunction) {
   // Start the game loop
   this.oldTime = performance.now();
   this.paused = false;
+
+  //Other attrs
+  this.grid = _initGrid(8,8);
+  console.log(this.grid);
 }
 
 /**
@@ -146,4 +163,14 @@ Game.prototype.loop = function(newTime) {
   this.frontCtx.drawImage(this.backBuffer, 0, 0);
 }
 
-},{}]},{},[3,1,2]);
+/* --- PRIVATE METHODS ---*/
+
+function _initGrid(gridWidth, gridHeight) {
+  var grid = [];
+  for (var i = 0; i < gridWidth * gridHeight; i++) {
+    grid.push(new Cell());
+  }
+  return grid;
+}
+
+},{"./cell.js":2}]},{},[4,1,3]);

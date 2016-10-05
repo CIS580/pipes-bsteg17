@@ -1,5 +1,7 @@
 "use strict";
 
+var Cell = require('./cell.js');
+
 /**
  * @module exports the Game class
  */
@@ -27,6 +29,10 @@ function Game(screen, updateFunction, renderFunction) {
   // Start the game loop
   this.oldTime = performance.now();
   this.paused = false;
+
+  //Other attrs
+  this.grid = _initGrid(8,8);
+  console.log(this.grid);
 }
 
 /**
@@ -53,4 +59,14 @@ Game.prototype.loop = function(newTime) {
 
   // Flip the back buffer
   this.frontCtx.drawImage(this.backBuffer, 0, 0);
+}
+
+/* --- PRIVATE METHODS ---*/
+
+function _initGrid(gridWidth, gridHeight) {
+  var grid = [];
+  for (var i = 0; i < gridWidth * gridHeight; i++) {
+    grid.push(new Cell());
+  }
+  return grid;
 }
