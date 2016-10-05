@@ -3,12 +3,12 @@
 
 /* Classes */
 const Game = require('./game');
+const EntityManager = require('./entityManager.js');
 
 /* Global variables */
 var canvas = document.getElementById('screen');
 var game = new Game(canvas, update, render);
-var image = new Image();
-image.src = 'assets/pipes.png';
+var entityManager = new EntityManager(onAssetsLoaded);
 
 canvas.onclick = function(event) {
   event.preventDefault();
@@ -67,8 +67,20 @@ function render(elapsedTime, ctx) {
 
 }
 
-},{"./game":4}],2:[function(require,module,exports){
+var loadAssets = function() {
+  var imageFilenames = ["pipes.png"];
+  imageFilenames.forEach(function(filename) {
+    entityManager.addImage('./assets/'+filename);
+  });
+}
 
+loadAssets();
+function onAssetsLoaded() {
+  resizeCanvas();
+  masterLoop(performance.now());
+}
+
+},{"./entityManager.js":3,"./game":4}],2:[function(require,module,exports){
 /**
  * @module exports the Cell class
  */
@@ -76,11 +88,9 @@ module.exports = exports = Cell;
 
 function Cell(x, y) {
   this.render = render;
-
   this.x = x;
   this.y = y;
-  console.log(x,y); 
-  // this.pipe = pipe;
+  this.pipe = null;
 }
 
 var render = function() {
@@ -103,6 +113,7 @@ EntityManager.prototype.onLoad = function() {
 
 EntityManager.prototype.addImage = function(url) {
   if(this.images[url]) return this.images[url];
+  this.resourcesToLoad++;
   this.images[url] = new Image();
   this.images[url].onload = this.onLoad();
   this.images[url].src = url;

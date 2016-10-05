@@ -13,6 +13,7 @@ EntityManager.prototype.onLoad = function() {
 
 EntityManager.prototype.addImage = function(url) {
   if(this.images[url]) return this.images[url];
+  this.resourcesToLoad++;
   this.images[url] = new Image();
   this.images[url].onload = this.onLoad();
   this.images[url].src = url;

@@ -2,12 +2,12 @@
 
 /* Classes */
 const Game = require('./game');
+const EntityManager = require('./entityManager.js');
 
 /* Global variables */
 var canvas = document.getElementById('screen');
 var game = new Game(canvas, update, render);
-var image = new Image();
-image.src = 'assets/pipes.png';
+var entityManager = new EntityManager(onAssetsLoaded);
 
 canvas.onclick = function(event) {
   event.preventDefault();
@@ -64,4 +64,17 @@ function render(elapsedTime, ctx) {
 
   // TODO: Render the board
 
+}
+
+var loadAssets = function() {
+  var imageFilenames = ["pipes.png"];
+  imageFilenames.forEach(function(filename) {
+    entityManager.addImage('./assets/'+filename);
+  });
+}
+
+loadAssets();
+function onAssetsLoaded() {
+  resizeCanvas();
+  masterLoop(performance.now());
 }
