@@ -19,10 +19,22 @@ canvas.onclick = function(event) {
  * Advances the game in sync with the refresh rate of the screen
  * @param {DOMHighResTimeStamp} timestamp the current time
  */
+var resizeCanvas = function() {
+  var widthHeightRatio = canvas.width / canvas.height; 
+  canvas.height = window.innerHeight;
+  canvas.width = window.innerHeight * widthHeightRatio;
+}
+
+/**
+ * @function masterLoop
+ * Advances the game in sync with the refresh rate of the screen
+ * @param {DOMHighResTimeStamp} timestamp the current time
+ */
 var masterLoop = function(timestamp) {
   game.loop(timestamp);
   window.requestAnimationFrame(masterLoop);
 }
+resizeCanvas();
 masterLoop(performance.now());
 
 

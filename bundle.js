@@ -10,12 +10,20 @@ var game = new Game(canvas, update, render);
 var image = new Image();
 image.src = 'assets/pipes.png';
 
-// TODO: Place the pipe tiles on the board in random order
-
 canvas.onclick = function(event) {
   event.preventDefault();
-  // TODO: determine which pipe tile was clicked on
-  // TODO: rotate the pipes in the pipe tile
+  // TODO: Place or rotate pipe tile
+}
+
+/**
+ * @function masterLoop
+ * Advances the game in sync with the refresh rate of the screen
+ * @param {DOMHighResTimeStamp} timestamp the current time
+ */
+var resizeCanvas = function() {
+  var widthHeightRatio = canvas.width / canvas.height; 
+  canvas.height = window.innerHeight;
+  canvas.width = window.innerHeight * widthHeightRatio;
 }
 
 /**
@@ -27,6 +35,7 @@ var masterLoop = function(timestamp) {
   game.loop(timestamp);
   window.requestAnimationFrame(masterLoop);
 }
+resizeCanvas();
 masterLoop(performance.now());
 
 
@@ -58,7 +67,28 @@ function render(elapsedTime, ctx) {
 
 }
 
-},{"./game":2}],2:[function(require,module,exports){
+},{"./game":3}],2:[function(require,module,exports){
+module.exports = exports = EntityManager;
+
+function EntityManager(callback) {
+  this.resourcesToLoad = 0;
+  this.images = {};
+  this.callback = callback;
+}
+
+EntityManager.prototype.onLoad = function() {
+  this.resourcesToLoad--;
+  if (this.resourcesToLoad == 0) this.callback();
+}
+
+EntityManager.prototype.addImage = function(url) {
+  if(this.images[url]) return this.images[url];
+  this.images[url] = new Image();
+  this.images[url].onload = this.onLoad();
+  this.images[url].src = url;
+}
+
+},{}],3:[function(require,module,exports){
 "use strict";
 
 /**
@@ -116,4 +146,4 @@ Game.prototype.loop = function(newTime) {
   this.frontCtx.drawImage(this.backBuffer, 0, 0);
 }
 
-},{}]},{},[1]);
+},{}]},{},[3,1,2]);
