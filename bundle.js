@@ -62,9 +62,7 @@ function update(elapsedTime) {
 function render(elapsedTime, ctx) {
   ctx.fillStyle = "#777777";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  // TODO: Render the board
-
+  
 }
 
 var loadAssets = function() {
@@ -90,12 +88,15 @@ function Cell(x, y) {
   this.render = render;
   this.x = x;
   this.y = y;
-  this.pipe = null;
+  this.pipeStyle = null;
+  this.pipeDirection = 0;
 }
 
 var render = function() {
-
+  
 }
+
+/* --- PRIVATE METHODS --- */
 
 },{}],3:[function(require,module,exports){
 module.exports = exports = EntityManager;
@@ -123,6 +124,7 @@ EntityManager.prototype.addImage = function(url) {
 "use strict";
 
 var Cell = require('./cell.js');
+var Grid = require('./grid.js');
 
 /**
  * @module exports the Game class
@@ -136,7 +138,7 @@ module.exports = exports = Game;
  * @param {function} updateFunction function to update the game
  * @param {function} renderFunction function to render the game
  */
-function Game(screen, updateFunction, renderFunction) {
+function Game(screen, updateFunction, renderFunction, spritesheet) {
   this.update = updateFunction;
   this.render = renderFunction;
 
@@ -153,7 +155,8 @@ function Game(screen, updateFunction, renderFunction) {
   this.paused = false;
 
   //Other attrs
-  this.grid = _initGrid(8,8);
+  this.spritesheet = spritesheet;
+  this.grid = new Grid(8,8,this.spritesheet);
   console.log(this.grid);
 }
 
@@ -185,12 +188,35 @@ Game.prototype.loop = function(newTime) {
 
 /* --- PRIVATE METHODS ---*/
 
-function _initGrid(gridWidth, gridHeight) {
-  var grid = [];
-  for (var i = 0; i < gridWidth * gridHeight; i++) {
-    grid.push(new Cell(i % gridWidth, Math.floor(i / gridHeight)));
-  }
-  return grid;
+
+},{"./cell.js":2,"./grid.js":5}],5:[function(require,module,exports){
+/**
+ * @module exports the Cell class
+ */
+module.exports = exports = Grid;
+
+var Cell = require('./cell.js');
+
+function Grid(w,h,spritesheet) {
+  this.render = render;
+  this.spritesheet = spritesheet;
+  this.width = w;
+  this.height = h;
+  this.cells = this._initCells();
 }
 
-},{"./cell.js":2}]},{},[4,1,3]);
+var render = function(ctx) {
+  
+}
+
+/* --- PRIVATE METHODS --- */
+
+Grid.prototype._initCells = function () {
+  var cells = [];
+  for (var i = 0; i < this.width * this.height; i++) {
+    cells.push(new Cell(i % this.width, Math.floor(i / this.height)));
+  }
+  return cells;
+}
+
+},{"./cell.js":2}]},{},[2,4,1,3]);

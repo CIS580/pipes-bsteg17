@@ -61,9 +61,7 @@ function update(elapsedTime) {
 function render(elapsedTime, ctx) {
   ctx.fillStyle = "#777777";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  // TODO: Render the board
-
+  
 }
 
 var loadAssets = function() {

@@ -1,6 +1,7 @@
 "use strict";
 
 var Cell = require('./cell.js');
+var Grid = require('./grid.js');
 
 /**
  * @module exports the Game class
@@ -14,7 +15,7 @@ module.exports = exports = Game;
  * @param {function} updateFunction function to update the game
  * @param {function} renderFunction function to render the game
  */
-function Game(screen, updateFunction, renderFunction) {
+function Game(screen, updateFunction, renderFunction, spritesheet) {
   this.update = updateFunction;
   this.render = renderFunction;
 
@@ -31,7 +32,8 @@ function Game(screen, updateFunction, renderFunction) {
   this.paused = false;
 
   //Other attrs
-  this.grid = _initGrid(8,8);
+  this.spritesheet = spritesheet;
+  this.grid = new Grid(8,8,this.spritesheet);
   console.log(this.grid);
 }
 
@@ -63,10 +65,3 @@ Game.prototype.loop = function(newTime) {
 
 /* --- PRIVATE METHODS ---*/
 
-function _initGrid(gridWidth, gridHeight) {
-  var grid = [];
-  for (var i = 0; i < gridWidth * gridHeight; i++) {
-    grid.push(new Cell(i % gridWidth, Math.floor(i / gridHeight)));
-  }
-  return grid;
-}
