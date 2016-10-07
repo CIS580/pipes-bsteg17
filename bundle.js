@@ -7,8 +7,8 @@ const EntityManager = require('./entityManager.js');
 
 /* Global variables */
 var canvas = document.getElementById('screen');
-var game = new Game(canvas, update, render);
 var entityManager = new EntityManager(onAssetsLoaded);
+var game; 
 
 canvas.onclick = function(event) {
   event.preventDefault();
@@ -35,9 +35,6 @@ var masterLoop = function(timestamp) {
   game.loop(timestamp);
   window.requestAnimationFrame(masterLoop);
 }
-resizeCanvas();
-masterLoop(performance.now());
-
 
 /**
  * @function update
@@ -62,18 +59,24 @@ function update(elapsedTime) {
 function render(elapsedTime, ctx) {
   ctx.fillStyle = "#777777";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  
+  game.grid.render(ctx); 
 }
 
 var loadAssets = function() {
-  var imageFilenames = ["pipes.png"];
-  imageFilenames.forEach(function(filename) {
-    entityManager.addImage('./assets/'+filename);
+  var images = [{filename:"pipes.png", width:127, height:160 }];
+  images.forEach(function(image) {
+    entityManager.addImage('./assets/'+image.filename, image.width, image.height);
   });
 }
 
 loadAssets();
+
 function onAssetsLoaded() {
+  var spritesheet = {};
+      spritesheet.image = entityManager.images['./assets/pipes.png'];
+      spritesheet.spriteWidth = spritesheet.image.width / 4;
+      spritesheet.spriteHeight = spritesheet.image.height / 5;
+  game = new Game(canvas, update, render, spritesheet); 
   resizeCanvas();
   masterLoop(performance.now());
 }
@@ -88,7 +91,7 @@ function Cell(x, y) {
   this.render = render;
   this.x = x;
   this.y = y;
-  this.pipeStyle = null;
+  this.pipeType = "cross";
   this.pipeDirection = 0;
 }
 
@@ -112,10 +115,14 @@ EntityManager.prototype.onLoad = function() {
   if (this.resourcesToLoad == 0) this.callback();
 }
 
-EntityManager.prototype.addImage = function(url) {
+EntityManager.prototype.addImage = function(url, width, height) {
   if(this.images[url]) return this.images[url];
   this.resourcesToLoad++;
-  this.images[url] = new Image();
+  if (width && height) {
+    this.images[url] = new Image(width, height);
+  } else {
+    this.images[url] = new Image();
+  }
   this.images[url].onload = this.onLoad();
   this.images[url].src = url;
 }
@@ -156,7 +163,7 @@ function Game(screen, updateFunction, renderFunction, spritesheet) {
 
   //Other attrs
   this.spritesheet = spritesheet;
-  this.grid = new Grid(8,8,this.spritesheet);
+  this.grid = new Grid(8,8,this.spritesheet,screen);
   console.log(this.grid);
 }
 
@@ -197,16 +204,30 @@ module.exports = exports = Grid;
 
 var Cell = require('./cell.js');
 
-function Grid(w,h,spritesheet) {
-  this.render = render;
+var pipeTypes = {"none":{x:0, y:4}, "cross":{x:0,y:0}};
+
+function Grid(w, h, spritesheet, canvas) {
   this.spritesheet = spritesheet;
   this.width = w;
   this.height = h;
+  this.cellWidth = canvas.width / w;
+  this.cellHeight = canvas.height / h;
   this.cells = this._initCells();
 }
 
-var render = function(ctx) {
-  
+Grid.prototype.render = function(ctx) {
+  var self = this;
+  self.cells.forEach(function(cell) {
+    var sprite = pipeTypes[cell.pipeType];
+    var ss = self.spritesheet;
+    ctx.drawImage( 
+      ss.image,
+      ss.spriteWidth * sprite.x, ss.spriteHeight * sprite.y,
+      ss.spriteWidth, ss.spriteHeight, 
+      cell.x, cell.y,
+      self.cellWidth, self.cellHeight
+    );
+  });  
 }
 
 /* --- PRIVATE METHODS --- */
@@ -219,4 +240,4 @@ Grid.prototype._initCells = function () {
   return cells;
 }
 
-},{"./cell.js":2}]},{},[2,4,1,3]);
+},{"./cell.js":2}]},{},[1]);

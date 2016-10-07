@@ -33,7 +33,7 @@ function Game(screen, updateFunction, renderFunction, spritesheet) {
 
   //Other attrs
   this.spritesheet = spritesheet;
-  this.grid = new Grid(8,8,this.spritesheet);
+  this.grid = new Grid(8,8,this.spritesheet,screen);
   console.log(this.grid);
 }
 

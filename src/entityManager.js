@@ -11,10 +11,14 @@ EntityManager.prototype.onLoad = function() {
   if (this.resourcesToLoad == 0) this.callback();
 }
 
-EntityManager.prototype.addImage = function(url) {
+EntityManager.prototype.addImage = function(url, width, height) {
   if(this.images[url]) return this.images[url];
   this.resourcesToLoad++;
-  this.images[url] = new Image();
+  if (width && height) {
+    this.images[url] = new Image(width, height);
+  } else {
+    this.images[url] = new Image();
+  }
   this.images[url].onload = this.onLoad();
   this.images[url].src = url;
 }

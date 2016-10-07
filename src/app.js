@@ -6,8 +6,8 @@ const EntityManager = require('./entityManager.js');
 
 /* Global variables */
 var canvas = document.getElementById('screen');
-var game = new Game(canvas, update, render);
 var entityManager = new EntityManager(onAssetsLoaded);
+var game; 
 
 canvas.onclick = function(event) {
   event.preventDefault();
@@ -34,9 +34,6 @@ var masterLoop = function(timestamp) {
   game.loop(timestamp);
   window.requestAnimationFrame(masterLoop);
 }
-resizeCanvas();
-masterLoop(performance.now());
-
 
 /**
  * @function update
@@ -61,18 +58,24 @@ function update(elapsedTime) {
 function render(elapsedTime, ctx) {
   ctx.fillStyle = "#777777";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  
+  game.grid.render(ctx); 
 }
 
 var loadAssets = function() {
-  var imageFilenames = ["pipes.png"];
-  imageFilenames.forEach(function(filename) {
-    entityManager.addImage('./assets/'+filename);
+  var images = [{filename:"pipes.png", width:127, height:160 }];
+  images.forEach(function(image) {
+    entityManager.addImage('./assets/'+image.filename, image.width, image.height);
   });
 }
 
 loadAssets();
+
 function onAssetsLoaded() {
+  var spritesheet = {};
+      spritesheet.image = entityManager.images['./assets/pipes.png'];
+      spritesheet.spriteWidth = spritesheet.image.width / 4;
+      spritesheet.spriteHeight = spritesheet.image.height / 5;
+  game = new Game(canvas, update, render, spritesheet); 
   resizeCanvas();
   masterLoop(performance.now());
 }
