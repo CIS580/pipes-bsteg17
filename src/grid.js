@@ -5,7 +5,7 @@ module.exports = exports = Grid;
 
 var Cell = require('./cell.js');
 
-var pipeTypes = {"none":{x:0, y:4}, "cross":{x:0,y:0}, "straight":{x:3, y:1}};
+var pipeTypes = {"none":{x:0, y:4}, "cross":{x:0,y:0}, "straight":{x:3, y:1}, "bent":{x:1, y:1}, "t-shaped":{x:1, y:3}};
 
 function Grid(w, h, spritesheet, canvas) {
   this.spritesheet = spritesheet;
