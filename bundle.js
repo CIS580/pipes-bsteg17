@@ -76,8 +76,8 @@ function onAssetsLoaded() {
       spritesheet.image = entityManager.images['./assets/pipes.png'];
       spritesheet.spriteWidth = spritesheet.image.width / 4;
       spritesheet.spriteHeight = spritesheet.image.height / 5;
-  game = new Game(canvas, update, render, spritesheet); 
   resizeCanvas();
+  game = new Game(canvas, update, render, spritesheet); 
   masterLoop(performance.now());
 }
 
@@ -87,12 +87,12 @@ function onAssetsLoaded() {
  */
 module.exports = exports = Cell;
 
-function Cell(x, y) {
+function Cell(x, y, pipeType, pipeDirection) {
   this.render = render;
   this.x = x;
   this.y = y;
-  this.pipeType = "cross";
-  this.pipeDirection = 0;
+  pipeType ? this.pipeType = pipeType : this.pipeType = "none";
+  pipeDirection ? this.pipeDirection = pipeDirection : this.pipeDirection = 0;
 }
 
 var render = function() {
@@ -204,7 +204,7 @@ module.exports = exports = Grid;
 
 var Cell = require('./cell.js');
 
-var pipeTypes = {"none":{x:0, y:4}, "cross":{x:0,y:0}};
+var pipeTypes = {"none":{x:0, y:4}, "cross":{x:0,y:0}, "straight":{x:3, y:1}};
 
 function Grid(w, h, spritesheet, canvas) {
   this.spritesheet = spritesheet;
@@ -220,11 +220,12 @@ Grid.prototype.render = function(ctx) {
   self.cells.forEach(function(cell) {
     var sprite = pipeTypes[cell.pipeType];
     var ss = self.spritesheet;
+    console.log(); 
     ctx.drawImage( 
       ss.image,
       ss.spriteWidth * sprite.x, ss.spriteHeight * sprite.y,
       ss.spriteWidth, ss.spriteHeight, 
-      cell.x, cell.y,
+      cell.x * self.cellWidth, cell.y * self.cellHeight,
       self.cellWidth, self.cellHeight
     );
   });  
@@ -233,10 +234,15 @@ Grid.prototype.render = function(ctx) {
 /* --- PRIVATE METHODS --- */
 
 Grid.prototype._initCells = function () {
+  var self = this;
   var cells = [];
-  for (var i = 0; i < this.width * this.height; i++) {
-    cells.push(new Cell(i % this.width, Math.floor(i / this.height)));
+  //add starting pipe
+  cells.push(new Cell(0, 0, "straight", 0));
+  for (var i = 1; i < (self.width * self.height) - 1; i++) {
+    cells.push(new Cell(i % self.width, Math.floor(i / self.height)));
   }
+  //add ending pipe
+  cells.push(new Cell(self.width - 1, self.height - 1, "straight", 0));
   return cells;
 }
 

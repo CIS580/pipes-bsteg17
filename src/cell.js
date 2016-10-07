@@ -3,12 +3,12 @@
  */
 module.exports = exports = Cell;
 
-function Cell(x, y) {
+function Cell(x, y, pipeType, pipeDirection) {
   this.render = render;
   this.x = x;
   this.y = y;
-  this.pipeType = "cross";
-  this.pipeDirection = 0;
+  pipeType ? this.pipeType = pipeType : this.pipeType = "none";
+  pipeDirection ? this.pipeDirection = pipeDirection : this.pipeDirection = 0;
 }
 
 var render = function() {

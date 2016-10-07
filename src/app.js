@@ -75,7 +75,7 @@ function onAssetsLoaded() {
       spritesheet.image = entityManager.images['./assets/pipes.png'];
       spritesheet.spriteWidth = spritesheet.image.width / 4;
       spritesheet.spriteHeight = spritesheet.image.height / 5;
-  game = new Game(canvas, update, render, spritesheet); 
   resizeCanvas();
+  game = new Game(canvas, update, render, spritesheet); 
   masterLoop(performance.now());
 }
