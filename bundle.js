@@ -10,9 +10,23 @@ var canvas = document.getElementById('screen');
 var entityManager = new EntityManager(onAssetsLoaded);
 var game; 
 
+// right click
+canvas.oncontextmenu = function (event) {
+  event.preventDefault();
+  game.rotatePipe( getClick(event) );
+};
+
+// left click
 canvas.onclick = function(event) {
   event.preventDefault();
-  // TODO: Place or rotate pipe tile
+  game.putPipe( getClick(event) );
+}
+
+function getClick(e) {
+  return {
+    x: e.x - canvas.offsetLeft,
+    y: e.y - canvas.offsetTop
+  }
 }
 
 /**
@@ -167,6 +181,14 @@ function Game(screen, updateFunction, renderFunction, spritesheet) {
   console.log(this.grid);
 }
 
+Game.prototype.putPipe = function(click) {
+  console.log("putPipe", this.grid.getCell(click));
+}
+
+Game.prototype.rotatePipe = function(click) {
+  console.log("rotatePipe", this.grid.getCell(click));
+}
+
 /**
  * @function pause
  * Pause or unpause the game
@@ -229,6 +251,14 @@ Grid.prototype.render = function(ctx) {
       self.cellWidth, self.cellHeight
     );
   });  
+}
+
+Grid.prototype.getCell = function(click) {
+  self = this;
+  return {
+    x: Math.floor(click.x / self.cellWidth),
+    y: Math.floor(click.y / self.cellHeight)
+  }
 }
 
 /* --- PRIVATE METHODS --- */

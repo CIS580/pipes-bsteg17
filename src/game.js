@@ -37,6 +37,14 @@ function Game(screen, updateFunction, renderFunction, spritesheet) {
   console.log(this.grid);
 }
 
+Game.prototype.putPipe = function(click) {
+  console.log("putPipe", this.grid.getCell(click));
+}
+
+Game.prototype.rotatePipe = function(click) {
+  console.log("rotatePipe", this.grid.getCell(click));
+}
+
 /**
  * @function pause
  * Pause or unpause the game

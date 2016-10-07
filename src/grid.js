@@ -32,6 +32,14 @@ Grid.prototype.render = function(ctx) {
   });  
 }
 
+Grid.prototype.getCell = function(click) {
+  self = this;
+  return {
+    x: Math.floor(click.x / self.cellWidth),
+    y: Math.floor(click.y / self.cellHeight)
+  }
+}
+
 /* --- PRIVATE METHODS --- */
 
 Grid.prototype._initCells = function () {

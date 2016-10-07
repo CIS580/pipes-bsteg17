@@ -9,9 +9,23 @@ var canvas = document.getElementById('screen');
 var entityManager = new EntityManager(onAssetsLoaded);
 var game; 
 
+// right click
+canvas.oncontextmenu = function (event) {
+  event.preventDefault();
+  game.rotatePipe( getClick(event) );
+};
+
+// left click
 canvas.onclick = function(event) {
   event.preventDefault();
-  // TODO: Place or rotate pipe tile
+  game.putPipe( getClick(event) );
+}
+
+function getClick(e) {
+  return {
+    x: e.x - canvas.offsetLeft,
+    y: e.y - canvas.offsetTop
+  }
 }
 
 /**
