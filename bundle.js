@@ -102,15 +102,19 @@ function onAssetsLoaded() {
 module.exports = exports = Cell;
 
 function Cell(x, y, pipeType, pipeDirection) {
-  this.render = render;
   this.x = x;
   this.y = y;
   pipeType ? this.pipeType = pipeType : this.pipeType = "none";
   pipeDirection ? this.pipeDirection = pipeDirection : this.pipeDirection = 0;
 }
 
-var render = function() {
-  
+Cell.prototype.put = function(pipe) {
+  this.pipeType = pipe;
+}
+
+Cell.prototype.rotate = function() {
+  console.log("rotate");
+
 }
 
 /* --- PRIVATE METHODS --- */
@@ -178,15 +182,14 @@ function Game(screen, updateFunction, renderFunction, spritesheet) {
   //Other attrs
   this.spritesheet = spritesheet;
   this.grid = new Grid(8,8,this.spritesheet,screen);
-  console.log(this.grid);
 }
 
 Game.prototype.putPipe = function(click) {
-  console.log("putPipe", this.grid.getCell(click));
+  this.grid.getCell(click).put( Grid.randomPipe() );
 }
 
 Game.prototype.rotatePipe = function(click) {
-  console.log("rotatePipe", this.grid.getCell(click));
+  this.grid.getCell(click).rotate();
 }
 
 /**
@@ -254,11 +257,15 @@ Grid.prototype.render = function(ctx) {
 }
 
 Grid.prototype.getCell = function(click) {
-  self = this;
-  return {
-    x: Math.floor(click.x / self.cellWidth),
-    y: Math.floor(click.y / self.cellHeight)
-  }
+  x = Math.floor(click.x / this.cellWidth);
+  y = Math.floor(click.y / this.cellHeight);
+  return this.cells[ (y * this.width) + (x % this.width) ];
+}
+
+/* --- CLASS METHODS --- */
+Grid.randomPipe = function () {
+  pipes = Object.keys(pipeTypes).slice(1);
+  return pipes[ Math.floor( Math.random() * pipes.length ) ];
 }
 
 /* --- PRIVATE METHODS --- */

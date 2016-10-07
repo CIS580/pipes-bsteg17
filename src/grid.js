@@ -33,11 +33,15 @@ Grid.prototype.render = function(ctx) {
 }
 
 Grid.prototype.getCell = function(click) {
-  self = this;
-  return {
-    x: Math.floor(click.x / self.cellWidth),
-    y: Math.floor(click.y / self.cellHeight)
-  }
+  x = Math.floor(click.x / this.cellWidth);
+  y = Math.floor(click.y / this.cellHeight);
+  return this.cells[ (y * this.width) + (x % this.width) ];
+}
+
+/* --- CLASS METHODS --- */
+Grid.randomPipe = function () {
+  pipes = Object.keys(pipeTypes).slice(1);
+  return pipes[ Math.floor( Math.random() * pipes.length ) ];
 }
 
 /* --- PRIVATE METHODS --- */

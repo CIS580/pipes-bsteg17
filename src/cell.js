@@ -4,15 +4,19 @@
 module.exports = exports = Cell;
 
 function Cell(x, y, pipeType, pipeDirection) {
-  this.render = render;
   this.x = x;
   this.y = y;
   pipeType ? this.pipeType = pipeType : this.pipeType = "none";
   pipeDirection ? this.pipeDirection = pipeDirection : this.pipeDirection = 0;
 }
 
-var render = function() {
-  
+Cell.prototype.put = function(pipe) {
+  this.pipeType = pipe;
+}
+
+Cell.prototype.rotate = function() {
+  console.log("rotate");
+
 }
 
 /* --- PRIVATE METHODS --- */
