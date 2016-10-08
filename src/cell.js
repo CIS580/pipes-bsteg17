@@ -6,12 +6,13 @@ module.exports = exports = Cell;
 function Cell(x, y, pipeType, pipeDirection) {
   this.x = x;
   this.y = y;
-  pipeType ? this.pipeType = pipeType : this.pipeType = "none";
-  pipeDirection ? this.pipeDirection = pipeDirection : this.pipeDirection = 0;
+  this.pipeType = pipeType; 
+  this.pipeDirection = pipeDirection; 
 }
 
-Cell.prototype.put = function(pipe) {
+Cell.prototype.put = function(pipe, direction) {
   this.pipeType = pipe;
+  this.pipeDirection = direction;
 }
 
 Cell.prototype.rotate = function() {

@@ -40,7 +40,7 @@ function Game(screen, updateFunction, renderFunction, spritesheet) {
 
 Game.prototype.putPipe = function(click) {
   var cell = this.grid.getCell(click);
-  if (Helpers.arraysUnequal([cell.x, cell.y], [0,0], [7,7])) cell.put( Grid.randomPipe() );
+  if (Helpers.arraysUnequal([cell.x, cell.y], [0,0], [7,7])) cell.put( Grid.randomPipe(), Grid.randomDirection() );
 }
 
 Game.prototype.rotatePipe = function(click) {

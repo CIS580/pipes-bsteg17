@@ -104,12 +104,13 @@ module.exports = exports = Cell;
 function Cell(x, y, pipeType, pipeDirection) {
   this.x = x;
   this.y = y;
-  pipeType ? this.pipeType = pipeType : this.pipeType = "none";
-  pipeDirection ? this.pipeDirection = pipeDirection : this.pipeDirection = 0;
+  this.pipeType = pipeType; 
+  this.pipeDirection = pipeDirection; 
 }
 
-Cell.prototype.put = function(pipe) {
+Cell.prototype.put = function(pipe, direction) {
   this.pipeType = pipe;
+  this.pipeDirection = direction;
 }
 
 Cell.prototype.rotate = function() {
@@ -187,7 +188,7 @@ function Game(screen, updateFunction, renderFunction, spritesheet) {
 
 Game.prototype.putPipe = function(click) {
   var cell = this.grid.getCell(click);
-  if (Helpers.arraysUnequal([cell.x, cell.y], [0,0], [7,7])) cell.put( Grid.randomPipe() );
+  if (Helpers.arraysUnequal([cell.x, cell.y], [0,0], [7,7])) cell.put( Grid.randomPipe(), Grid.randomDirection() );
 }
 
 Game.prototype.rotatePipe = function(click) {
@@ -274,6 +275,13 @@ Grid.randomPipe = function () {
   return pipes[ Math.floor( Math.random() * pipes.length ) ];
 }
 
+Grid.randomDirection = function () {
+  var angle = Math.random() * 2 * Math.PI;
+  var x = ( Math.floor( angle / ( .5 * Math.PI ) ) * .5 * Math.PI ); 
+  console.log(x); 
+  return x;
+}
+
 /* --- PRIVATE METHODS --- */
 
 Grid.prototype._initCells = function () {
@@ -282,7 +290,7 @@ Grid.prototype._initCells = function () {
   //add starting pipe
   cells.push(new Cell(0, 0, "straight", 0));
   for (var i = 1; i < (self.width * self.height) - 1; i++) {
-    cells.push(new Cell(i % self.width, Math.floor(i / self.height), "none", Math.PI / 2));
+    cells.push(new Cell(i % self.width, Math.floor(i / self.height), "none", 0)); 
   }
   //add ending pipe
   cells.push(new Cell(self.width - 1, self.height - 1, "straight", 0));
