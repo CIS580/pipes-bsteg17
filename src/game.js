@@ -2,6 +2,8 @@
 
 var Cell = require('./cell.js');
 var Grid = require('./grid.js');
+var Helpers = require('./helpers.js');
+console.log(Helpers);
 
 /**
  * @module exports the Game class
@@ -37,11 +39,13 @@ function Game(screen, updateFunction, renderFunction, spritesheet) {
 }
 
 Game.prototype.putPipe = function(click) {
-  this.grid.getCell(click).put( Grid.randomPipe() );
+  var cell = this.grid.getCell(click);
+  if (Helpers.arraysUnequal([cell.x, cell.y], [0,0], [7,7])) cell.put( Grid.randomPipe() );
 }
 
 Game.prototype.rotatePipe = function(click) {
-  this.grid.getCell(click).rotate();
+  var cell = this.grid.getCell(click);
+  if (Helpers.arraysUnequal([cell.x, cell.y], [0,0], [7,7])) cell.rotate();
 }
 
 /**

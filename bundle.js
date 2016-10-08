@@ -149,6 +149,8 @@ EntityManager.prototype.addImage = function(url, width, height) {
 
 var Cell = require('./cell.js');
 var Grid = require('./grid.js');
+var Helpers = require('./helpers.js');
+console.log(Helpers);
 
 /**
  * @module exports the Game class
@@ -184,11 +186,13 @@ function Game(screen, updateFunction, renderFunction, spritesheet) {
 }
 
 Game.prototype.putPipe = function(click) {
-  this.grid.getCell(click).put( Grid.randomPipe() );
+  var cell = this.grid.getCell(click);
+  if (Helpers.arraysUnequal([cell.x, cell.y], [0,0], [7,7])) cell.put( Grid.randomPipe() );
 }
 
 Game.prototype.rotatePipe = function(click) {
-  this.grid.getCell(click).rotate();
+  var cell = this.grid.getCell(click);
+  if (Helpers.arraysUnequal([cell.x, cell.y], [0,0], [7,7])) cell.rotate();
 }
 
 /**
@@ -220,7 +224,7 @@ Game.prototype.loop = function(newTime) {
 /* --- PRIVATE METHODS ---*/
 
 
-},{"./cell.js":2,"./grid.js":5}],5:[function(require,module,exports){
+},{"./cell.js":2,"./grid.js":5,"./helpers.js":6}],5:[function(require,module,exports){
 /**
  * @module exports the Cell class
  */
@@ -278,7 +282,7 @@ Grid.prototype._initCells = function () {
   //add starting pipe
   cells.push(new Cell(0, 0, "straight", 0));
   for (var i = 1; i < (self.width * self.height) - 1; i++) {
-    cells.push(new Cell(i % self.width, Math.floor(i / self.height), "bent", Math.PI / 2));
+    cells.push(new Cell(i % self.width, Math.floor(i / self.height), "none", Math.PI / 2));
   }
   //add ending pipe
   cells.push(new Cell(self.width - 1, self.height - 1, "straight", 0));
@@ -286,4 +290,32 @@ Grid.prototype._initCells = function () {
   return cells;
 }
 
-},{"./cell.js":2}]},{},[1]);
+},{"./cell.js":2}],6:[function(require,module,exports){
+
+/**
+ * @module exports the Helpers class
+ */
+module.exports = exports = Helpers;
+
+function Helpers() {
+  this.arraysUnequal = arraysUnequal;
+}
+
+Helpers.arraysUnequal = function () {
+  var a1 = arguments[0];
+  for (var a = 1; a < arguments.length; a++) {
+    a2 = arguments[a]; 
+    if (Helpers.twoArraysEqual(a1, a2)) return false;
+  }
+  return true;
+}
+
+Helpers.twoArraysEqual = function(a1, a2) {
+  if (a1.length != a2.length) return false;
+  for (var i = 0; i < a1.length; i++) {
+    if (a1[i] != a2[i]) return false;
+  }
+  return true;
+}
+
+},{}]},{},[1]);
