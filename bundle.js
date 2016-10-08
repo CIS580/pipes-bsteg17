@@ -101,19 +101,22 @@ function onAssetsLoaded() {
  */
 module.exports = exports = Cell;
 
-function Cell(x, y, pipeType, pipeDirection) {
+function Cell(x, y, pipeType, pipeDirection, setInStone) {
   this.x = x;
   this.y = y;
   this.pipeType = pipeType; 
   this.pipeDirection = pipeDirection; 
+  this.setInStone = setInStone; 
 }
 
 Cell.prototype.put = function(pipe, direction) {
+  if (this.setInStone) return;
   this.pipeType = pipe;
   this.pipeDirection = direction;
 }
 
 Cell.prototype.rotate = function() {
+  if (this.setInStone) return;
   this.pipeDirection = (this.pipeDirection + (Math.PI / 2)) % (Math.PI * 2);
 }
 
@@ -288,12 +291,12 @@ Grid.prototype._initCells = function () {
   var self = this;
   var cells = [];
   //add starting pipe
-  cells.push(new Cell(0, 0, "straight", 0));
+  cells.push(new Cell(0, 0, "straight", 0, true));
   for (var i = 1; i < (self.width * self.height) - 1; i++) {
-    cells.push(new Cell(i % self.width, Math.floor(i / self.height), "none", 0)); 
+    cells.push(new Cell(i % self.width, Math.floor(i / self.height), "straight", 0, false)); 
   }
   //add ending pipe
-  cells.push(new Cell(self.width - 1, self.height - 1, "straight", 0));
+  cells.push(new Cell(self.width - 1, self.height - 1, "straight", 0, true));
   console.log(cells);
   return cells;
 }
