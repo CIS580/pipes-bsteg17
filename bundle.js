@@ -96,6 +96,8 @@ function onAssetsLoaded() {
 }
 
 },{"./entityManager.js":3,"./game":4}],2:[function(require,module,exports){
+var Water = require('./water');
+
 /**
  * @module exports the Cell class
  */
@@ -107,6 +109,7 @@ function Cell(x, y, pipeType, pipeDirection, setInStone) {
   this.pipeType = pipeType; 
   this.pipeDirection = pipeDirection; 
   this.setInStone = setInStone; 
+  this.water = new Water();
 }
 
 Cell.prototype.put = function(pipe, direction) {
@@ -122,7 +125,7 @@ Cell.prototype.rotate = function() {
 
 /* --- PRIVATE METHODS --- */
 
-},{}],3:[function(require,module,exports){
+},{"./water":7}],3:[function(require,module,exports){
 module.exports = exports = EntityManager;
 
 function EntityManager(callback) {
@@ -250,20 +253,26 @@ function Grid(w, h, spritesheet, canvas) {
 Grid.prototype.render = function(ctx) {
   var self = this;
   self.cells.forEach(function(cell) {
-    var sprite = pipeTypes[cell.pipeType];
-    var ss = self.spritesheet;
-    ctx.save();
-    ctx.translate((cell.x * self.cellWidth) + (self.cellWidth / 2), (cell.y * self.cellHeight) + (self.cellHeight / 2)); 
-    ctx.rotate(cell.pipeDirection);
-    ctx.drawImage( 
-      ss.image,
-      ss.spriteWidth * sprite.x, ss.spriteHeight * sprite.y,
-      ss.spriteWidth, ss.spriteHeight, 
-      -self.cellWidth / 2, -self.cellHeight / 2,
-      self.cellWidth, self.cellHeight
-    );
-    ctx.restore();
+    self.drawPipe(ctx, cell);
+    cell.water.render();
   });  
+}
+
+Grid.prototype.drawPipe = function (ctx, cell) {
+  var self = this;
+  var sprite = pipeTypes[cell.pipeType];
+  var ss = self.spritesheet;
+  ctx.save();
+  ctx.translate((cell.x * self.cellWidth) + (self.cellWidth / 2), (cell.y * self.cellHeight) + (self.cellHeight / 2)); 
+  ctx.rotate(cell.pipeDirection);
+  ctx.drawImage( 
+    ss.image,
+    ss.spriteWidth * sprite.x, ss.spriteHeight * sprite.y,
+    ss.spriteWidth, ss.spriteHeight, 
+    -self.cellWidth / 2, -self.cellHeight / 2,
+    self.cellWidth, self.cellHeight
+  );
+  ctx.restore();
 }
 
 Grid.prototype.getCell = function(click) {
@@ -327,6 +336,56 @@ Helpers.twoArraysEqual = function(a1, a2) {
     if (a1[i] != a2[i]) return false;
   }
   return true;
+}
+
+},{}],7:[function(require,module,exports){
+/**
+ * @module exports the Water class
+ */
+module.exports = exports = Water;
+
+function Water(cell) {
+  this.cell = cell;
+  this.percentFull = 0;
+}
+
+Water.prototype.render = function() {
+  if(this.percentFull == 0) return;
+  if(this.percentFull == 100) this._drawFull();
+  this._pipeDrawMethod();
+}
+
+Water.prototype.drawStraight = function() {
+
+}
+
+Water.prototype.drawBent = function() {
+
+}
+
+Water.prototype.drawTShaped = function() {
+
+}
+
+Water.prototype.drawCross = function() {
+
+}
+
+Water.prototype.pipeDrawMethod = function() {
+  switch(this.cell.pipeType) {
+    case "straight":
+       return this.drawStraight;
+    case "cross":
+       return this.drawCross;
+    case "bent":
+       return this.drawBent;
+    case "t-shaped":
+       return this.drawTShaped;
+  }
+}
+
+Water.prototype._drawFull = function() {
+  
 }
 
 },{}]},{},[1]);

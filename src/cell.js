@@ -1,3 +1,5 @@
+var Water = require('./water');
+
 /**
  * @module exports the Cell class
  */
@@ -9,6 +11,7 @@ function Cell(x, y, pipeType, pipeDirection, setInStone) {
   this.pipeType = pipeType; 
   this.pipeDirection = pipeDirection; 
   this.setInStone = setInStone; 
+  this.water = new Water();
 }
 
 Cell.prototype.put = function(pipe, direction) {

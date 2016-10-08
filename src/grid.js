@@ -19,20 +19,26 @@ function Grid(w, h, spritesheet, canvas) {
 Grid.prototype.render = function(ctx) {
   var self = this;
   self.cells.forEach(function(cell) {
-    var sprite = pipeTypes[cell.pipeType];
-    var ss = self.spritesheet;
-    ctx.save();
-    ctx.translate((cell.x * self.cellWidth) + (self.cellWidth / 2), (cell.y * self.cellHeight) + (self.cellHeight / 2)); 
-    ctx.rotate(cell.pipeDirection);
-    ctx.drawImage( 
-      ss.image,
-      ss.spriteWidth * sprite.x, ss.spriteHeight * sprite.y,
-      ss.spriteWidth, ss.spriteHeight, 
-      -self.cellWidth / 2, -self.cellHeight / 2,
-      self.cellWidth, self.cellHeight
-    );
-    ctx.restore();
+    self.drawPipe(ctx, cell);
+    cell.water.render();
   });  
+}
+
+Grid.prototype.drawPipe = function (ctx, cell) {
+  var self = this;
+  var sprite = pipeTypes[cell.pipeType];
+  var ss = self.spritesheet;
+  ctx.save();
+  ctx.translate((cell.x * self.cellWidth) + (self.cellWidth / 2), (cell.y * self.cellHeight) + (self.cellHeight / 2)); 
+  ctx.rotate(cell.pipeDirection);
+  ctx.drawImage( 
+    ss.image,
+    ss.spriteWidth * sprite.x, ss.spriteHeight * sprite.y,
+    ss.spriteWidth, ss.spriteHeight, 
+    -self.cellWidth / 2, -self.cellHeight / 2,
+    self.cellWidth, self.cellHeight
+  );
+  ctx.restore();
 }
 
 Grid.prototype.getCell = function(click) {
