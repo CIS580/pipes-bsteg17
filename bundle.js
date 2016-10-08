@@ -113,8 +113,7 @@ Cell.prototype.put = function(pipe) {
 }
 
 Cell.prototype.rotate = function() {
-  console.log("rotate");
-
+  this.pipeDirection = (this.pipeDirection + (Math.PI / 2)) % (Math.PI * 2);
 }
 
 /* --- PRIVATE METHODS --- */
@@ -245,14 +244,17 @@ Grid.prototype.render = function(ctx) {
   self.cells.forEach(function(cell) {
     var sprite = pipeTypes[cell.pipeType];
     var ss = self.spritesheet;
-    console.log(); 
+    ctx.save();
+    ctx.translate((cell.x * self.cellWidth) + (self.cellWidth / 2), (cell.y * self.cellHeight) + (self.cellHeight / 2)); 
+    ctx.rotate(cell.pipeDirection);
     ctx.drawImage( 
       ss.image,
       ss.spriteWidth * sprite.x, ss.spriteHeight * sprite.y,
       ss.spriteWidth, ss.spriteHeight, 
-      cell.x * self.cellWidth, cell.y * self.cellHeight,
+      -self.cellWidth / 2, -self.cellHeight / 2,
       self.cellWidth, self.cellHeight
     );
+    ctx.restore();
   });  
 }
 
@@ -276,10 +278,11 @@ Grid.prototype._initCells = function () {
   //add starting pipe
   cells.push(new Cell(0, 0, "straight", 0));
   for (var i = 1; i < (self.width * self.height) - 1; i++) {
-    cells.push(new Cell(i % self.width, Math.floor(i / self.height)));
+    cells.push(new Cell(i % self.width, Math.floor(i / self.height), "straight", Math.PI / 2));
   }
   //add ending pipe
   cells.push(new Cell(self.width - 1, self.height - 1, "straight", 0));
+  console.log(cells);
   return cells;
 }
 

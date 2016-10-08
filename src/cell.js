@@ -15,8 +15,7 @@ Cell.prototype.put = function(pipe) {
 }
 
 Cell.prototype.rotate = function() {
-  console.log("rotate");
-
+  this.pipeDirection = (this.pipeDirection + (Math.PI / 2)) % (Math.PI * 2);
 }
 
 /* --- PRIVATE METHODS --- */
