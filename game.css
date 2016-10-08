@@ -1,4 +1,12 @@
 canvas#screen {
-  border: 2px solid #333;
+  position:absolute;
+  top:0;
+  left:0;
+  border: 1px solid #333;
   box-shadow: 4px 4px 4px #777;
+}
+
+html, body {
+  'overflow': 'hidden',
+  'height': '100%'
 }
