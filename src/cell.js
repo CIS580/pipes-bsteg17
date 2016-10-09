@@ -11,7 +11,7 @@ function Cell(x, y, pipeType, pipeDirection, setInStone) {
   this.pipeType = pipeType; 
   this.pipeDirection = pipeDirection; 
   this.setInStone = setInStone; 
-  this.water = new Water();
+  this.water = new Water(this);
 }
 
 Cell.prototype.put = function(pipe, direction) {

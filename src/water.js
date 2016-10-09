@@ -30,7 +30,7 @@ Water.prototype.drawCross = function() {
 
 }
 
-Water.prototype.pipeDrawMethod = function() {
+Water.prototype._pipeDrawMethod = function() {
   switch(this.cell.pipeType) {
     case "straight":
        return this.drawStraight;

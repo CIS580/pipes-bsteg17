@@ -58,8 +58,12 @@ var masterLoop = function(timestamp) {
  * the number of milliseconds passed since the last frame.
  */
 function update(elapsedTime) {
-
-  // TODO: Advance the fluid
+  self = this;
+  self.elapsedFrameTime += elapsedTime;
+  if(self.elapsedFrameTime > self.updateFreq) {
+    self.grid.updateWater(); 
+    self.elapsedFrameTime = self.elapsedFrameTime - self.updateFreq; 
+  }
 }
 
 /**

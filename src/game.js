@@ -3,7 +3,6 @@
 var Cell = require('./cell.js');
 var Grid = require('./grid.js');
 var Helpers = require('./helpers.js');
-console.log(Helpers);
 
 /**
  * @module exports the Game class
@@ -20,6 +19,8 @@ module.exports = exports = Game;
 function Game(screen, updateFunction, renderFunction, spritesheet) {
   this.update = updateFunction;
   this.render = renderFunction;
+  this.updateFreq = 500;
+  this.elapsedFrameTime = 0;
 
   // Set up buffers
   this.frontBuffer = screen;

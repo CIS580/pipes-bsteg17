@@ -59,8 +59,12 @@ var masterLoop = function(timestamp) {
  * the number of milliseconds passed since the last frame.
  */
 function update(elapsedTime) {
-
-  // TODO: Advance the fluid
+  self = this;
+  self.elapsedFrameTime += elapsedTime;
+  if(self.elapsedFrameTime > self.updateFreq) {
+    self.grid.updateWater(); 
+    self.elapsedFrameTime = self.elapsedFrameTime - self.updateFreq; 
+  }
 }
 
 /**
@@ -109,7 +113,7 @@ function Cell(x, y, pipeType, pipeDirection, setInStone) {
   this.pipeType = pipeType; 
   this.pipeDirection = pipeDirection; 
   this.setInStone = setInStone; 
-  this.water = new Water();
+  this.water = new Water(this);
 }
 
 Cell.prototype.put = function(pipe, direction) {
@@ -157,7 +161,6 @@ EntityManager.prototype.addImage = function(url, width, height) {
 var Cell = require('./cell.js');
 var Grid = require('./grid.js');
 var Helpers = require('./helpers.js');
-console.log(Helpers);
 
 /**
  * @module exports the Game class
@@ -174,6 +177,8 @@ module.exports = exports = Game;
 function Game(screen, updateFunction, renderFunction, spritesheet) {
   this.update = updateFunction;
   this.render = renderFunction;
+  this.updateFreq = 500;
+  this.elapsedFrameTime = 0;
 
   // Set up buffers
   this.frontBuffer = screen;
@@ -248,6 +253,8 @@ function Grid(w, h, spritesheet, canvas) {
   this.cellWidth = canvas.width / w;
   this.cellHeight = canvas.height / h;
   this.cells = this._initCells();
+  this.cellBeingFilled = this.cells[0];
+  console.log(this.cellBeingFilled);
 }
 
 Grid.prototype.render = function(ctx) {
@@ -255,7 +262,23 @@ Grid.prototype.render = function(ctx) {
   self.cells.forEach(function(cell) {
     self.drawPipe(ctx, cell);
     cell.water.render();
+    ctx.fillStyle = "white";
+    ctx.font = "15px Georgia";
+    console.log(cell.water.percentFull);
+    ctx.fillText(cell.water.percentFull.toFixed(2), cell.x * self.cellWidth, cell.y * self.cellHeight + 15);
   });  
+}
+
+Grid.prototype.updateWater = function() {
+  this.cellBeingFilled.water.percentFull += .2;
+  if (this.cellBeingFilled.water.percentFull == 1) 
+    var nextCell = this.getCellPointingTo(this.cellBeingFilled);
+    if (nextCell != null) {
+      this.cellBeingFilled = nextCell;
+      this.cellBeingFilled.setInStone = true;
+    } else { 
+      console.log("game over");
+    }
 }
 
 Grid.prototype.drawPipe = function (ctx, cell) {
@@ -281,6 +304,10 @@ Grid.prototype.getCell = function(click) {
   return this.cells[ (y * this.width) + (x % this.width) ];
 }
 
+Grid.prototype.getCellPointingTo = function(cell) {
+  return this.cells[ cell.x + 1 ];
+}
+
 /* --- CLASS METHODS --- */
 Grid.randomPipe = function () {
   pipes = Object.keys(pipeTypes).slice(1);
@@ -302,7 +329,7 @@ Grid.prototype._initCells = function () {
   //add starting pipe
   cells.push(new Cell(0, 0, "straight", 0, true));
   for (var i = 1; i < (self.width * self.height) - 1; i++) {
-    cells.push(new Cell(i % self.width, Math.floor(i / self.height), "straight", 0, false)); 
+    cells.push(new Cell(i % self.width, Math.floor(i / self.height), "none", 0, false)); 
   }
   //add ending pipe
   cells.push(new Cell(self.width - 1, self.height - 1, "straight", 0, true));
@@ -371,7 +398,7 @@ Water.prototype.drawCross = function() {
 
 }
 
-Water.prototype.pipeDrawMethod = function() {
+Water.prototype._pipeDrawMethod = function() {
   switch(this.cell.pipeType) {
     case "straight":
        return this.drawStraight;
