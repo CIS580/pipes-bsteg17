@@ -59,8 +59,11 @@ var masterLoop = function(timestamp) {
  * the number of milliseconds passed since the last frame.
  */
 function update(elapsedTime) {
-
-  // TODO: Advance the fluid
+  game.elapsedFrameTime += elapsedTime;
+  if (game.elapsedFrameTime > game.msPerFrame) {
+    game.elapsedFrameTime = game.elapsedFrameTime - game.msPerFrame;
+    game.grid.updateWater();
+  }
 }
 
 /**
@@ -125,6 +128,10 @@ Cell.prototype.rotate = function() {
   this.pipeDirection = (this.pipeDirection + (Math.PI / 2)) % (Math.PI * 2);
 }
 
+Cell.prototype.index = function(grid) {
+  return (this.y * grid.width) + this.x; 
+}
+
 /* --- PRIVATE METHODS --- */
 
 },{"./water":7}],3:[function(require,module,exports){
@@ -176,6 +183,9 @@ module.exports = exports = Game;
 function Game(screen, updateFunction, renderFunction, spritesheet) {
   this.update = updateFunction;
   this.render = renderFunction;
+
+  this.elapsedFrameTime = 0;
+  this.msPerFrame = 200;
 
   // Set up buffers
   this.frontBuffer = screen;
@@ -240,6 +250,7 @@ Game.prototype.loop = function(newTime) {
 module.exports = exports = Grid;
 
 var Cell = require('./cell.js');
+var Water = require('./water.js');
 
 var pipeTypes = {"none":{x:0, y:4}, "straight":{x:3, y:1}, "bent":{x:1, y:1}};
 
@@ -250,6 +261,7 @@ function Grid(w, h, spritesheet, canvas) {
   this.cellWidth = canvas.width / w;
   this.cellHeight = canvas.height / h;
   this.cells = this._initCells();
+  this.cellBeingFilled = this.cells[0];
 }
 
 Grid.prototype.render = function(ctx) {
@@ -283,6 +295,44 @@ Grid.prototype.getCell = function(click) {
   return this.cells[ (y * this.width) + (x % this.width) ];
 }
 
+Grid.prototype.updateWater = function() {
+  var water = this.cellBeingFilled.water;
+  water.percentFull += Water.speed;
+  if (water.percentFull > 1.00) {
+    water.percentFull = 1.00;
+    this.cellBeingFilled = this.getNextCell();
+    if (this.cellBeingFilled == null) console.log("game over");
+    this.cellBeingFilled.water.percentFull = Water.speed;
+    return;
+  }
+}
+
+Grid.prototype.getNextCell = function() {
+  var self = this;
+  switch(this.cellBeingFilled.feeding) {
+    case "up":
+      if (self.cellBeingFilled.y == 0) return null;
+      var cell = self.cells[this.cellBeingFilled.index(this) - this.width];
+      if (cell.fedBy != "down") return null;
+      return cell;
+    case "down":
+      if (self.cellBeingFilled.y == 7) return null;
+      var cell = self.cells[this.cellBeingFilled.index(this) + this.width];
+      if (cell.fedBy != "up") return null;
+      return cell;
+    case "left":
+      if (self.cellBeingFilled.x == 0) return null;
+      var cell = self.cells[this.cellBeingFilled.index(this) - 1];
+      if (cell.fedBy != "right") return null;
+      return cell;
+    case "right":
+      if (self.cellBeingFilled.x == 7) return null;
+      var cell = self.cells[this.cellBeingFilled.index(this) + 1];
+      if (cell.fedBy != "left") return null;
+      return cell;
+  }
+}
+
 /* --- CLASS METHODS --- */
 Grid.randomPipe = function () {
   pipes = Object.keys(pipeTypes).slice(1);
@@ -304,7 +354,7 @@ Grid.prototype._initCells = function () {
   //add starting pipe
   cells.push(new Cell(0, 0, "straight", 0, true, "left", "right"));
   for (var i = 1; i < (self.width * self.height) - 1; i++) {
-    cells.push(new Cell(i % self.width, Math.floor(i / self.height), "straight", 0, false, null, null)); 
+    cells.push(new Cell(i % self.width, Math.floor(i / self.height), "straight", 0, false, "left", "right")); 
   }
   //add ending pipe
   cells.push(new Cell(self.width - 1, self.height - 1, "straight", 0, true, "left", "right"));
@@ -312,7 +362,7 @@ Grid.prototype._initCells = function () {
   return cells;
 }
 
-},{"./cell.js":2}],6:[function(require,module,exports){
+},{"./cell.js":2,"./water.js":7}],6:[function(require,module,exports){
 
 /**
  * @module exports the Helpers class
@@ -351,11 +401,12 @@ function Water(cell) {
   this.percentFull = 0;
 }
 
+Water.speed = .2;
+
 Water.prototype.render = function(ctx, grid) {
-  console.log(grid);
   ctx.fillStyle = "white";
   ctx.font = "15px Georgia";
-  ctx.fillText(this.percentFull, (this.cell.x * grid.cellWidth), (this.cell.y * grid.cellHeight) + 10);
+  ctx.fillText(this.percentFull.toFixed(2), (this.cell.x * grid.cellWidth), (this.cell.y * grid.cellHeight) + 10);
   if(this.percentFull == 0) return;
   if(this.percentFull == 100) this._drawFull();
   this._pipeDrawMethod();
@@ -377,7 +428,7 @@ Water.prototype.drawCross = function() {
 
 }
 
-Water.prototype.pipeDrawMethod = function() {
+Water.prototype._pipeDrawMethod = function() {
   switch(this.cell.pipeType) {
     case "straight":
        return this.drawStraight;

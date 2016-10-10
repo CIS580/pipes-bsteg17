@@ -27,4 +27,8 @@ Cell.prototype.rotate = function() {
   this.pipeDirection = (this.pipeDirection + (Math.PI / 2)) % (Math.PI * 2);
 }
 
+Cell.prototype.index = function(grid) {
+  return (this.y * grid.width) + this.x; 
+}
+
 /* --- PRIVATE METHODS --- */

@@ -21,6 +21,9 @@ function Game(screen, updateFunction, renderFunction, spritesheet) {
   this.update = updateFunction;
   this.render = renderFunction;
 
+  this.elapsedFrameTime = 0;
+  this.msPerFrame = 200;
+
   // Set up buffers
   this.frontBuffer = screen;
   this.frontCtx = screen.getContext('2d');

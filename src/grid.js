@@ -4,6 +4,7 @@
 module.exports = exports = Grid;
 
 var Cell = require('./cell.js');
+var Water = require('./water.js');
 
 var pipeTypes = {"none":{x:0, y:4}, "straight":{x:3, y:1}, "bent":{x:1, y:1}};
 
@@ -14,6 +15,7 @@ function Grid(w, h, spritesheet, canvas) {
   this.cellWidth = canvas.width / w;
   this.cellHeight = canvas.height / h;
   this.cells = this._initCells();
+  this.cellBeingFilled = this.cells[0];
 }
 
 Grid.prototype.render = function(ctx) {
@@ -47,6 +49,44 @@ Grid.prototype.getCell = function(click) {
   return this.cells[ (y * this.width) + (x % this.width) ];
 }
 
+Grid.prototype.updateWater = function() {
+  var water = this.cellBeingFilled.water;
+  water.percentFull += Water.speed;
+  if (water.percentFull > 1.00) {
+    water.percentFull = 1.00;
+    this.cellBeingFilled = this.getNextCell();
+    if (this.cellBeingFilled == null) console.log("game over");
+    this.cellBeingFilled.water.percentFull = Water.speed;
+    return;
+  }
+}
+
+Grid.prototype.getNextCell = function() {
+  var self = this;
+  switch(this.cellBeingFilled.feeding) {
+    case "up":
+      if (self.cellBeingFilled.y == 0) return null;
+      var cell = self.cells[this.cellBeingFilled.index(this) - this.width];
+      if (cell.fedBy != "down") return null;
+      return cell;
+    case "down":
+      if (self.cellBeingFilled.y == 7) return null;
+      var cell = self.cells[this.cellBeingFilled.index(this) + this.width];
+      if (cell.fedBy != "up") return null;
+      return cell;
+    case "left":
+      if (self.cellBeingFilled.x == 0) return null;
+      var cell = self.cells[this.cellBeingFilled.index(this) - 1];
+      if (cell.fedBy != "right") return null;
+      return cell;
+    case "right":
+      if (self.cellBeingFilled.x == 7) return null;
+      var cell = self.cells[this.cellBeingFilled.index(this) + 1];
+      if (cell.fedBy != "left") return null;
+      return cell;
+  }
+}
+
 /* --- CLASS METHODS --- */
 Grid.randomPipe = function () {
   pipes = Object.keys(pipeTypes).slice(1);
@@ -68,7 +108,7 @@ Grid.prototype._initCells = function () {
   //add starting pipe
   cells.push(new Cell(0, 0, "straight", 0, true, "left", "right"));
   for (var i = 1; i < (self.width * self.height) - 1; i++) {
-    cells.push(new Cell(i % self.width, Math.floor(i / self.height), "straight", 0, false, null, null)); 
+    cells.push(new Cell(i % self.width, Math.floor(i / self.height), "straight", 0, false, "left", "right")); 
   }
   //add ending pipe
   cells.push(new Cell(self.width - 1, self.height - 1, "straight", 0, true, "left", "right"));

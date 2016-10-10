@@ -8,11 +8,12 @@ function Water(cell) {
   this.percentFull = 0;
 }
 
+Water.speed = .2;
+
 Water.prototype.render = function(ctx, grid) {
-  console.log(grid);
   ctx.fillStyle = "white";
   ctx.font = "15px Georgia";
-  ctx.fillText(this.percentFull, (this.cell.x * grid.cellWidth), (this.cell.y * grid.cellHeight) + 10);
+  ctx.fillText(this.percentFull.toFixed(2), (this.cell.x * grid.cellWidth), (this.cell.y * grid.cellHeight) + 10);
   if(this.percentFull == 0) return;
   if(this.percentFull == 100) this._drawFull();
   this._pipeDrawMethod();
@@ -34,7 +35,7 @@ Water.prototype.drawCross = function() {
 
 }
 
-Water.prototype.pipeDrawMethod = function() {
+Water.prototype._pipeDrawMethod = function() {
   switch(this.cell.pipeType) {
     case "straight":
        return this.drawStraight;
