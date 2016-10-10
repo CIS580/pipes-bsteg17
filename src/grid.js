@@ -20,7 +20,7 @@ Grid.prototype.render = function(ctx) {
   var self = this;
   self.cells.forEach(function(cell) {
     self.drawPipe(ctx, cell);
-    cell.water.render();
+    cell.water.render(ctx, self);
   });  
 }
 
@@ -66,12 +66,12 @@ Grid.prototype._initCells = function () {
   var self = this;
   var cells = [];
   //add starting pipe
-  cells.push(new Cell(0, 0, "straight", 0, true));
+  cells.push(new Cell(0, 0, "straight", 0, true, "left", "right"));
   for (var i = 1; i < (self.width * self.height) - 1; i++) {
-    cells.push(new Cell(i % self.width, Math.floor(i / self.height), "straight", 0, false)); 
+    cells.push(new Cell(i % self.width, Math.floor(i / self.height), "straight", 0, false, null, null)); 
   }
   //add ending pipe
-  cells.push(new Cell(self.width - 1, self.height - 1, "straight", 0, true));
+  cells.push(new Cell(self.width - 1, self.height - 1, "straight", 0, true, "left", "right"));
   console.log(cells);
   return cells;
 }

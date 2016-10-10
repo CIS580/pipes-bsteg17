@@ -103,13 +103,15 @@ var Water = require('./water');
  */
 module.exports = exports = Cell;
 
-function Cell(x, y, pipeType, pipeDirection, setInStone) {
+function Cell(x, y, pipeType, pipeDirection, setInStone, fedBy, feeding) {
   this.x = x;
   this.y = y;
   this.pipeType = pipeType; 
   this.pipeDirection = pipeDirection; 
   this.setInStone = setInStone; 
-  this.water = new Water();
+  this.fedBy = fedBy;
+  this.feeding = feeding;
+  this.water = new Water(this);
 }
 
 Cell.prototype.put = function(pipe, direction) {
@@ -254,7 +256,7 @@ Grid.prototype.render = function(ctx) {
   var self = this;
   self.cells.forEach(function(cell) {
     self.drawPipe(ctx, cell);
-    cell.water.render();
+    cell.water.render(ctx, self);
   });  
 }
 
@@ -300,12 +302,12 @@ Grid.prototype._initCells = function () {
   var self = this;
   var cells = [];
   //add starting pipe
-  cells.push(new Cell(0, 0, "straight", 0, true));
+  cells.push(new Cell(0, 0, "straight", 0, true, "left", "right"));
   for (var i = 1; i < (self.width * self.height) - 1; i++) {
-    cells.push(new Cell(i % self.width, Math.floor(i / self.height), "straight", 0, false)); 
+    cells.push(new Cell(i % self.width, Math.floor(i / self.height), "straight", 0, false, null, null)); 
   }
   //add ending pipe
-  cells.push(new Cell(self.width - 1, self.height - 1, "straight", 0, true));
+  cells.push(new Cell(self.width - 1, self.height - 1, "straight", 0, true, "left", "right"));
   console.log(cells);
   return cells;
 }
@@ -349,7 +351,11 @@ function Water(cell) {
   this.percentFull = 0;
 }
 
-Water.prototype.render = function() {
+Water.prototype.render = function(ctx, grid) {
+  console.log(grid);
+  ctx.fillStyle = "white";
+  ctx.font = "15px Georgia";
+  ctx.fillText(this.percentFull, (this.cell.x * grid.cellWidth), (this.cell.y * grid.cellHeight) + 10);
   if(this.percentFull == 0) return;
   if(this.percentFull == 100) this._drawFull();
   this._pipeDrawMethod();

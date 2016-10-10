@@ -5,13 +5,15 @@ var Water = require('./water');
  */
 module.exports = exports = Cell;
 
-function Cell(x, y, pipeType, pipeDirection, setInStone) {
+function Cell(x, y, pipeType, pipeDirection, setInStone, fedBy, feeding) {
   this.x = x;
   this.y = y;
   this.pipeType = pipeType; 
   this.pipeDirection = pipeDirection; 
   this.setInStone = setInStone; 
-  this.water = new Water();
+  this.fedBy = fedBy;
+  this.feeding = feeding;
+  this.water = new Water(this);
 }
 
 Cell.prototype.put = function(pipe, direction) {

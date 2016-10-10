@@ -8,7 +8,11 @@ function Water(cell) {
   this.percentFull = 0;
 }
 
-Water.prototype.render = function() {
+Water.prototype.render = function(ctx, grid) {
+  console.log(grid);
+  ctx.fillStyle = "white";
+  ctx.font = "15px Georgia";
+  ctx.fillText(this.percentFull, (this.cell.x * grid.cellWidth), (this.cell.y * grid.cellHeight) + 10);
   if(this.percentFull == 0) return;
   if(this.percentFull == 100) this._drawFull();
   this._pipeDrawMethod();
