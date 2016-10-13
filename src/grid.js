@@ -65,37 +65,27 @@ Grid.prototype.getNextCell = function() {
   switch(self.cellBeingFilled.feeding) {
     case "up":
       if (self.cellBeingFilled.y == 0) return null;
-      var cell = self.cells[this.cellBeingFilled.index(this) - this.width];
-      if (cell.water.percentFull == 1.00) {return null;}
-      if (!cell.hasConnection(self.cellBeingFilled)) return null; 
-      cell.fedBy = "down";
-      cell.setFeeding();
-      return cell;
+      return self._configureNextCell(this.cellBeingFilled.index(this) - this.width, "down");
     case "down":
       if (self.cellBeingFilled.y == 7) return null;
-      var cell = self.cells[this.cellBeingFilled.index(this) + this.width];
-      if (cell.water.percentFull == 1.00) {return null;}
-      if (!cell.hasConnection(self.cellBeingFilled)) return null; 
-      cell.fedBy = "up";
-      cell.setFeeding();
-      return cell;
+      return self._configureNextCell(this.cellBeingFilled.index(this) + this.width, "up");
     case "left":
       if (self.cellBeingFilled.x == 0) return null;
-      var cell = self.cells[this.cellBeingFilled.index(this) - 1];
-      if (cell.water.percentFull == 1.00) {return null;}
-      if (!cell.hasConnection(self.cellBeingFilled)) return null; 
-      cell.fedBy = "right";
-      cell.setFeeding();
-      return cell;
+      return self._configureNextCell(this.cellBeingFilled.index(this) - 1, "right");
     case "right":
       if (self.cellBeingFilled.x == 7) return null;
-      var cell = self.cells[this.cellBeingFilled.index(this) + 1];
-      if (cell.water.percentFull == 1.00) {return null;}
-      if (!cell.hasConnection(self.cellBeingFilled)) return null; 
-      cell.fedBy = "left";
-      cell.setFeeding();
-      return cell;
+      return self._configureNextCell(this.cellBeingFilled.index(this) + 1, "left");
   }
+}
+
+Grid.prototype._configureNextCell = function(nextCellIndex, fedBy) {
+  var self = this;
+  var cell = self.cells[nextCellIndex];
+  if (cell.water.percentFull == 1.00) {return null;}
+  if (!cell.hasConnection(self.cellBeingFilled)) return null; 
+  cell.fedBy = fedBy;
+  cell.setFeeding();
+  return cell;
 }
 
 /* --- CLASS METHODS --- */
