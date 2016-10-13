@@ -55,34 +55,45 @@ Grid.prototype.updateWater = function() {
   if (water.percentFull > 1.00) {
     water.percentFull = 1.00;
     this.cellBeingFilled = this.getNextCell();
-    if (this.cellBeingFilled == null) console.log("game over");
+    if (this.cellBeingFilled == null) {console.log("game over"); debugger;}
     this.cellBeingFilled.water.percentFull = Water.speed;
-    return;
   }
 }
 
 Grid.prototype.getNextCell = function() {
   var self = this;
-  switch(this.cellBeingFilled.feeding) {
+  switch(self.cellBeingFilled.feeding) {
     case "up":
       if (self.cellBeingFilled.y == 0) return null;
       var cell = self.cells[this.cellBeingFilled.index(this) - this.width];
-      if (cell.fedBy != "down") return null;
+      if (cell.water.percentFull == 1.00) {return null;}
+      if (!cell.hasConnection(self.cellBeingFilled)) return null; 
+      cell.fedBy = "down";
+      cell.setFeeding();
       return cell;
     case "down":
       if (self.cellBeingFilled.y == 7) return null;
       var cell = self.cells[this.cellBeingFilled.index(this) + this.width];
-      if (cell.fedBy != "up") return null;
+      if (cell.water.percentFull == 1.00) {return null;}
+      if (!cell.hasConnection(self.cellBeingFilled)) return null; 
+      cell.fedBy = "up";
+      cell.setFeeding();
       return cell;
     case "left":
       if (self.cellBeingFilled.x == 0) return null;
       var cell = self.cells[this.cellBeingFilled.index(this) - 1];
-      if (cell.fedBy != "right") return null;
+      if (cell.water.percentFull == 1.00) {return null;}
+      if (!cell.hasConnection(self.cellBeingFilled)) return null; 
+      cell.fedBy = "right";
+      cell.setFeeding();
       return cell;
     case "right":
       if (self.cellBeingFilled.x == 7) return null;
       var cell = self.cells[this.cellBeingFilled.index(this) + 1];
-      if (cell.fedBy != "left") return null;
+      if (cell.water.percentFull == 1.00) {return null;}
+      if (!cell.hasConnection(self.cellBeingFilled)) return null; 
+      cell.fedBy = "left";
+      cell.setFeeding();
       return cell;
   }
 }
@@ -106,12 +117,11 @@ Grid.prototype._initCells = function () {
   var self = this;
   var cells = [];
   //add starting pipe
-  cells.push(new Cell(0, 0, "straight", 0, true, "left", "right"));
+  cells.push(new Cell(0, 0, "bent", 0, true, "left", "right"));
   for (var i = 1; i < (self.width * self.height) - 1; i++) {
     cells.push(new Cell(i % self.width, Math.floor(i / self.height), "straight", 0, false, "left", "right")); 
   }
   //add ending pipe
   cells.push(new Cell(self.width - 1, self.height - 1, "straight", 0, true, "left", "right"));
-  console.log(cells);
   return cells;
 }
