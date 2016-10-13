@@ -97,6 +97,7 @@ Grid.prototype._configureNextCell = function(nextCellIndex, fedBy) {
   if (!cell.hasConnection(self.cellBeingFilled)) return null; 
   cell.fedBy = fedBy;
   cell.setFeeding();
+  cell.setInStone = true;
   return cell;
 }
 
