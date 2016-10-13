@@ -10,6 +10,7 @@ var pipeTypes = {"none":{x:0, y:4}, "straight":{x:3, y:1}, "bent":{x:1, y:1}};
 
 function Grid(w, h, spritesheet, canvas) {
   this.spritesheet = spritesheet;
+  this.canvas = canvas;
   this.width = w;
   this.height = h;
   this.cellWidth = canvas.width / w;
@@ -17,6 +18,8 @@ function Grid(w, h, spritesheet, canvas) {
   this.cells = this._initCells();
   this.cellBeingFilled = this.cells[0];
 }
+
+Grid.level = 1;
 
 Grid.prototype.render = function(ctx) {
   var self = this;
@@ -67,7 +70,9 @@ Grid.prototype.updateWater = function() {
   if (water.percentFull > 1.00) {
     water.percentFull = 1.00;
     this.cellBeingFilled = this.getNextCell();
-    if (this.cellBeingFilled == null) {console.log("game over"); debugger;}
+    if (this.cellBeingFilled == null) { this._gameOver(); return; }
+    console.log(this.cellBeingFilled, this.cellBeingFilled.x, this.cellBeingFilled.y);
+    if (this.cellBeingFilled.x == (this.width - 1) && this.cellBeingFilled.y == (this.height - 1)) { this._nextLevel(); return; }
     this.cellBeingFilled.water.percentFull = Water.speed;
   }
 }
@@ -117,14 +122,27 @@ Grid.randomDirection = function () {
 /* --- PRIVATE METHODS --- */
 
 Grid.prototype._initCells = function () {
+  console.log("initCElls");
   var self = this;
   var cells = [];
   //add starting pipe
-  cells.push(new Cell(0, 0, "bent", 0, true, "left", "right"));
+  cells.push(new Cell(0, 0, "straight", 0, true, "left", "right"));
   for (var i = 1; i < (self.width * self.height) - 1; i++) {
-    cells.push(new Cell(i % self.width, Math.floor(i / self.height), "straight", 0, false, "left", "right")); 
+    cells.push(new Cell(i % self.width, Math.floor(i / self.height), "none", 0, false, null, null)); 
   }
   //add ending pipe
   cells.push(new Cell(self.width - 1, self.height - 1, "straight", 0, true, "left", "right"));
   return cells;
+}
+
+Grid.prototype._gameOver = function() {
+  var body = this.canvas.parentElement;
+  body.innerHTML = '<h1>GAME OVER</h1><iframe src="giphy.gif" width="400" height="300"></iframe>';
+}
+
+Grid.prototype._nextLevel = function() {
+  Water.speed += .05;
+  Grid.level += 1;
+  this.cells = this._initCells();
+  this.cellBeingFilled = this.cells[0];
 }
