@@ -8,7 +8,7 @@ function Water(cell) {
   this.percentFull = 0;
 }
 
-Water.speed = .2;
+Water.speed = .05;
 
 Water.prototype.render = function(ctx, grid) {
   ctx.fillStyle = "white";

@@ -18,12 +18,16 @@ function Cell(x, y, pipeType, pipeDirection, setInStone, fedBy, feeding) {
 
 Cell.prototype.put = function(pipe, direction) {
   if (this.setInStone) return;
+  var snd = new Audio("assets/put.wav"); // buffers automatically when created
+  snd.play();
   this.pipeType = pipe;
   this.pipeDirection = direction;
 }
 
 Cell.prototype.rotate = function() {
   if (this.setInStone) return;
+  var snd = new Audio("assets/rotate.wav"); // buffers automatically when created
+  snd.play();
   this.pipeDirection = (this.pipeDirection + (Math.PI / 2)) % (Math.PI * 2);
 }
 

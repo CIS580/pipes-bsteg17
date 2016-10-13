@@ -3,6 +3,7 @@
 /* Classes */
 const Game = require('./game');
 const EntityManager = require('./entityManager.js');
+const Grid = require('./grid.js');
 
 /* Global variables */
 var canvas = document.getElementById('screen');
@@ -76,6 +77,9 @@ function render(elapsedTime, ctx) {
   ctx.fillStyle = "#777777";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   game.grid.render(ctx); 
+  ctx.fillStyle = "#FFFFFF";
+  ctx.font = "20px Georgia";
+  ctx.fillText(Grid.level, canvas.width - 30, 20);
 }
 
 var loadAssets = function() {
