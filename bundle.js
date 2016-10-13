@@ -250,7 +250,6 @@ EntityManager.prototype.addImage = function(url, width, height) {
 var Cell = require('./cell.js');
 var Grid = require('./grid.js');
 var Helpers = require('./helpers.js');
-console.log(Helpers);
 
 /**
  * @module exports the Game class
@@ -267,6 +266,8 @@ module.exports = exports = Game;
 function Game(screen, updateFunction, renderFunction, spritesheet) {
   this.update = updateFunction;
   this.render = renderFunction;
+  this.updateFreq = 500;
+  this.elapsedFrameTime = 0;
 
   this.elapsedFrameTime = 0;
   this.msPerFrame = 200;
@@ -354,6 +355,18 @@ Grid.prototype.render = function(ctx) {
     self.drawPipe(ctx, cell);
     cell.water.render(ctx, self);
   });  
+}
+
+Grid.prototype.updateWater = function() {
+  this.cellBeingFilled.water.percentFull += .2;
+  if (this.cellBeingFilled.water.percentFull == 1) 
+    var nextCell = this.getCellPointingTo(this.cellBeingFilled);
+    if (nextCell != null) {
+      this.cellBeingFilled = nextCell;
+      this.cellBeingFilled.setInStone = true;
+    } else { 
+      console.log("game over");
+    }
 }
 
 Grid.prototype.drawPipe = function (ctx, cell) {

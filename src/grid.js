@@ -26,6 +26,18 @@ Grid.prototype.render = function(ctx) {
   });  
 }
 
+Grid.prototype.updateWater = function() {
+  this.cellBeingFilled.water.percentFull += .2;
+  if (this.cellBeingFilled.water.percentFull == 1) 
+    var nextCell = this.getCellPointingTo(this.cellBeingFilled);
+    if (nextCell != null) {
+      this.cellBeingFilled = nextCell;
+      this.cellBeingFilled.setInStone = true;
+    } else { 
+      console.log("game over");
+    }
+}
+
 Grid.prototype.drawPipe = function (ctx, cell) {
   var self = this;
   var sprite = pipeTypes[cell.pipeType];
