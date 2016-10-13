@@ -136,11 +136,15 @@ Grid.prototype._initCells = function () {
 }
 
 Grid.prototype._gameOver = function() {
+  var snd = new Audio("assets/dog-howling-yapping-daniel_simon.wav"); // buffers automatically when created
+  snd.play();
   var body = this.canvas.parentElement;
   body.innerHTML = '<h1>GAME OVER</h1><iframe src="giphy.gif" width="400" height="300"></iframe>';
 }
 
 Grid.prototype._nextLevel = function() {
+  var snd = new Audio("assets/chinese-gong-daniel_simon.wav"); // buffers automatically when created
+  snd.play();
   Water.speed += .05;
   Grid.level += 1;
   this.cells = this._initCells();

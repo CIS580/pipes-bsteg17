@@ -123,12 +123,16 @@ function Cell(x, y, pipeType, pipeDirection, setInStone, fedBy, feeding) {
 
 Cell.prototype.put = function(pipe, direction) {
   if (this.setInStone) return;
+  var snd = new Audio("assets/put.wav"); // buffers automatically when created
+  snd.play();
   this.pipeType = pipe;
   this.pipeDirection = direction;
 }
 
 Cell.prototype.rotate = function() {
   if (this.setInStone) return;
+  var snd = new Audio("assets/rotate.wav"); // buffers automatically when created
+  snd.play();
   this.pipeDirection = (this.pipeDirection + (Math.PI / 2)) % (Math.PI * 2);
 }
 
@@ -471,11 +475,15 @@ Grid.prototype._initCells = function () {
 }
 
 Grid.prototype._gameOver = function() {
+  var snd = new Audio("assets/dog-howling-yapping-daniel_simon.wav"); // buffers automatically when created
+  snd.play();
   var body = this.canvas.parentElement;
   body.innerHTML = '<h1>GAME OVER</h1><iframe src="giphy.gif" width="400" height="300"></iframe>';
 }
 
 Grid.prototype._nextLevel = function() {
+  var snd = new Audio("assets/chinese-gong-daniel_simon.wav"); // buffers automatically when created
+  snd.play();
   Water.speed += .05;
   Grid.level += 1;
   this.cells = this._initCells();
