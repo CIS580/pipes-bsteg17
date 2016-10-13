@@ -58,11 +58,10 @@ var masterLoop = function(timestamp) {
  * the number of milliseconds passed since the last frame.
  */
 function update(elapsedTime) {
-  self = this;
-  self.elapsedFrameTime += elapsedTime;
-  if(self.elapsedFrameTime > self.updateFreq) {
-    self.grid.updateWater(); 
-    self.elapsedFrameTime = self.elapsedFrameTime - self.updateFreq; 
+  game.elapsedFrameTime += elapsedTime;
+  if (game.elapsedFrameTime > game.msPerFrame) {
+    game.elapsedFrameTime = game.elapsedFrameTime - game.msPerFrame;
+    game.grid.updateWater();
   }
 }
 

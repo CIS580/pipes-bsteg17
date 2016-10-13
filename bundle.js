@@ -59,11 +59,10 @@ var masterLoop = function(timestamp) {
  * the number of milliseconds passed since the last frame.
  */
 function update(elapsedTime) {
-  self = this;
-  self.elapsedFrameTime += elapsedTime;
-  if(self.elapsedFrameTime > self.updateFreq) {
-    self.grid.updateWater(); 
-    self.elapsedFrameTime = self.elapsedFrameTime - self.updateFreq; 
+  game.elapsedFrameTime += elapsedTime;
+  if (game.elapsedFrameTime > game.msPerFrame) {
+    game.elapsedFrameTime = game.elapsedFrameTime - game.msPerFrame;
+    game.grid.updateWater();
   }
 }
 
@@ -107,12 +106,14 @@ var Water = require('./water');
  */
 module.exports = exports = Cell;
 
-function Cell(x, y, pipeType, pipeDirection, setInStone) {
+function Cell(x, y, pipeType, pipeDirection, setInStone, fedBy, feeding) {
   this.x = x;
   this.y = y;
   this.pipeType = pipeType; 
   this.pipeDirection = pipeDirection; 
   this.setInStone = setInStone; 
+  this.fedBy = fedBy;
+  this.feeding = feeding;
   this.water = new Water(this);
 }
 
@@ -127,7 +128,95 @@ Cell.prototype.rotate = function() {
   this.pipeDirection = (this.pipeDirection + (Math.PI / 2)) % (Math.PI * 2);
 }
 
+Cell.prototype.index = function(grid) {
+  return (this.y * grid.width) + this.x; 
+}
+
+Cell.prototype.hasConnection = function(donor) {
+  switch(donor.feeding) {
+    case "up":
+      if(this.pipeType == "straight") {
+        return this.pipeDirection == Math.PI * (1/2) || this.pipeDirection == Math.PI * (3/2)
+      }
+      if(this.pipeType == "bent") {
+        return this.pipeDirection == 0 || this.pipeDirection == Math.PI * (1/2);
+      }
+    case "down":
+      if(this.pipeType == "straight") {
+        return this.pipeDirection == Math.PI * (1/2) || this.pipeDirection == Math.PI * (3/2)
+      }
+      if(this.pipeType == "bent") {
+        return this.pipeDirection == Math.PI || this.pipeDirection == Math.PI * (3/2);
+      }
+    case "left":
+      if(this.pipeType == "straight") {
+        return this.pipeDirection == 0 || this.pipeDirection == Math.PI; 
+      }
+      if(this.pipeType == "bent") {
+        return this.pipeDirection == 0 || this.pipeDirection == Math.PI * (3/2);
+      }
+    case "right":
+      if(this.pipeType == "straight") {
+        return this.pipeDirection == 0 || this.pipeDirection == Math.PI; 
+      }
+      if(this.pipeType == "bent") {
+        return this.pipeDirection == Math.PI || this.pipeDirection == Math.PI * (1/2);
+      }
+  }
+}
+
+Cell.prototype.setFeeding = function() {
+  if(this.pipeType == "straight") { this.feeding = this._straightPipeOutDirection(); }
+  if(this.pipeType == "bent") { this.feeding = this._bentPipeOutDirection(); }
+}
+
 /* --- PRIVATE METHODS --- */
+
+Cell.prototype._straightPipeOutDirection = function() {
+  switch(this.fedBy) {
+    case "up":
+      if(this.pipeType == "straight") { return "down"; }
+    case "down":
+      if(this.pipeType == "straight") { return "up"; }
+    case "left":
+      if(this.pipeType == "straight") { return "right"; }
+    case "right":
+      if(this.pipeType == "straight") { return "left"; }
+  }
+}
+
+Cell.prototype._bentPipeOutDirection = function() {
+  switch(this.fedBy) {
+    case "up":
+      switch(this.pipeDirection) {
+	case 0:
+          return "right";
+	case (Math.PI * (1/2)):
+          return "left";
+      }
+    case "down":
+      switch(this.pipeDirection) {
+	case Math.PI:
+          return "left";
+	case (Math.PI * (3/2)):
+          return "right";
+      }
+    case "left":
+      switch(this.pipeDirection) {
+	case (Math.PI * (1/2)):
+          return "down";
+	case Math.PI:
+          return "up";
+      }
+    case "right":
+      switch(this.pipeDirection) {
+	case 0:
+          return "down";
+	case (Math.PI * (3/2)):
+          return "up";
+      }
+  }
+}
 
 },{"./water":7}],3:[function(require,module,exports){
 module.exports = exports = EntityManager;
@@ -180,6 +269,9 @@ function Game(screen, updateFunction, renderFunction, spritesheet) {
   this.updateFreq = 500;
   this.elapsedFrameTime = 0;
 
+  this.elapsedFrameTime = 0;
+  this.msPerFrame = 200;
+
   // Set up buffers
   this.frontBuffer = screen;
   this.frontCtx = screen.getContext('2d');
@@ -199,12 +291,12 @@ function Game(screen, updateFunction, renderFunction, spritesheet) {
 
 Game.prototype.putPipe = function(click) {
   var cell = this.grid.getCell(click);
-  if (Helpers.arraysUnequal([cell.x, cell.y], [0,0], [7,7])) cell.put( Grid.randomPipe(), Grid.randomDirection() );
+  if (!cell.setInStone) cell.put( Grid.randomPipe(), Grid.randomDirection() );
 }
 
 Game.prototype.rotatePipe = function(click) {
   var cell = this.grid.getCell(click);
-  if (Helpers.arraysUnequal([cell.x, cell.y], [0,0], [7,7])) cell.rotate();
+  if (!cell.setInStone) cell.rotate();
 }
 
 /**
@@ -243,8 +335,9 @@ Game.prototype.loop = function(newTime) {
 module.exports = exports = Grid;
 
 var Cell = require('./cell.js');
+var Water = require('./water.js');
 
-var pipeTypes = {"none":{x:0, y:4}, "cross":{x:0,y:0}, "straight":{x:3, y:1}, "bent":{x:1, y:1}, "t-shaped":{x:1, y:3}};
+var pipeTypes = {"none":{x:0, y:4}, "straight":{x:3, y:1}, "bent":{x:1, y:1}};
 
 function Grid(w, h, spritesheet, canvas) {
   this.spritesheet = spritesheet;
@@ -254,18 +347,13 @@ function Grid(w, h, spritesheet, canvas) {
   this.cellHeight = canvas.height / h;
   this.cells = this._initCells();
   this.cellBeingFilled = this.cells[0];
-  console.log(this.cellBeingFilled);
 }
 
 Grid.prototype.render = function(ctx) {
   var self = this;
   self.cells.forEach(function(cell) {
     self.drawPipe(ctx, cell);
-    cell.water.render();
-    ctx.fillStyle = "white";
-    ctx.font = "15px Georgia";
-    console.log(cell.water.percentFull);
-    ctx.fillText(cell.water.percentFull.toFixed(2), cell.x * self.cellWidth, cell.y * self.cellHeight + 15);
+    cell.water.render(ctx, self);
   });  
 }
 
@@ -304,8 +392,43 @@ Grid.prototype.getCell = function(click) {
   return this.cells[ (y * this.width) + (x % this.width) ];
 }
 
-Grid.prototype.getCellPointingTo = function(cell) {
-  return this.cells[ cell.x + 1 ];
+Grid.prototype.updateWater = function() {
+  var water = this.cellBeingFilled.water;
+  water.percentFull += Water.speed;
+  if (water.percentFull > 1.00) {
+    water.percentFull = 1.00;
+    this.cellBeingFilled = this.getNextCell();
+    if (this.cellBeingFilled == null) {console.log("game over"); debugger;}
+    this.cellBeingFilled.water.percentFull = Water.speed;
+  }
+}
+
+Grid.prototype.getNextCell = function() {
+  var self = this;
+  switch(self.cellBeingFilled.feeding) {
+    case "up":
+      if (self.cellBeingFilled.y == 0) return null;
+      return self._configureNextCell(this.cellBeingFilled.index(this) - this.width, "down");
+    case "down":
+      if (self.cellBeingFilled.y == 7) return null;
+      return self._configureNextCell(this.cellBeingFilled.index(this) + this.width, "up");
+    case "left":
+      if (self.cellBeingFilled.x == 0) return null;
+      return self._configureNextCell(this.cellBeingFilled.index(this) - 1, "right");
+    case "right":
+      if (self.cellBeingFilled.x == 7) return null;
+      return self._configureNextCell(this.cellBeingFilled.index(this) + 1, "left");
+  }
+}
+
+Grid.prototype._configureNextCell = function(nextCellIndex, fedBy) {
+  var self = this;
+  var cell = self.cells[nextCellIndex];
+  if (cell.water.percentFull == 1.00) {return null;}
+  if (!cell.hasConnection(self.cellBeingFilled)) return null; 
+  cell.fedBy = fedBy;
+  cell.setFeeding();
+  return cell;
 }
 
 /* --- CLASS METHODS --- */
@@ -327,17 +450,16 @@ Grid.prototype._initCells = function () {
   var self = this;
   var cells = [];
   //add starting pipe
-  cells.push(new Cell(0, 0, "straight", 0, true));
+  cells.push(new Cell(0, 0, "bent", 0, true, "left", "right"));
   for (var i = 1; i < (self.width * self.height) - 1; i++) {
-    cells.push(new Cell(i % self.width, Math.floor(i / self.height), "none", 0, false)); 
+    cells.push(new Cell(i % self.width, Math.floor(i / self.height), "straight", 0, false, "left", "right")); 
   }
   //add ending pipe
-  cells.push(new Cell(self.width - 1, self.height - 1, "straight", 0, true));
-  console.log(cells);
+  cells.push(new Cell(self.width - 1, self.height - 1, "straight", 0, true, "left", "right"));
   return cells;
 }
 
-},{"./cell.js":2}],6:[function(require,module,exports){
+},{"./cell.js":2,"./water.js":7}],6:[function(require,module,exports){
 
 /**
  * @module exports the Helpers class
@@ -376,7 +498,12 @@ function Water(cell) {
   this.percentFull = 0;
 }
 
-Water.prototype.render = function() {
+Water.speed = .2;
+
+Water.prototype.render = function(ctx, grid) {
+  ctx.fillStyle = "white";
+  ctx.font = "15px Georgia";
+  ctx.fillText(this.percentFull.toFixed(2), (this.cell.x * grid.cellWidth), (this.cell.y * grid.cellHeight) + 10);
   if(this.percentFull == 0) return;
   if(this.percentFull == 100) this._drawFull();
   this._pipeDrawMethod();

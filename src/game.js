@@ -22,6 +22,9 @@ function Game(screen, updateFunction, renderFunction, spritesheet) {
   this.updateFreq = 500;
   this.elapsedFrameTime = 0;
 
+  this.elapsedFrameTime = 0;
+  this.msPerFrame = 200;
+
   // Set up buffers
   this.frontBuffer = screen;
   this.frontCtx = screen.getContext('2d');
@@ -41,12 +44,12 @@ function Game(screen, updateFunction, renderFunction, spritesheet) {
 
 Game.prototype.putPipe = function(click) {
   var cell = this.grid.getCell(click);
-  if (Helpers.arraysUnequal([cell.x, cell.y], [0,0], [7,7])) cell.put( Grid.randomPipe(), Grid.randomDirection() );
+  if (!cell.setInStone) cell.put( Grid.randomPipe(), Grid.randomDirection() );
 }
 
 Game.prototype.rotatePipe = function(click) {
   var cell = this.grid.getCell(click);
-  if (Helpers.arraysUnequal([cell.x, cell.y], [0,0], [7,7])) cell.rotate();
+  if (!cell.setInStone) cell.rotate();
 }
 
 /**
